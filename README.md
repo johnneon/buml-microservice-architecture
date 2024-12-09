@@ -49,3 +49,8 @@ docker-compose up -d
 Проект генерирует 2 артефакта - лог абсолютных ошибок и график по ним,
 по этому compose файл был настроен так что бы отдавать эти артефакты наружу с помощью volumes.
 Таким образом в корень проекта попадает папка `logs`, в которой содержатся артефакты.
+
+ - [metric_log.csv](./logs/metric_log.csv)
+ - [error_distribution.png](./logs/error_distribution.png)
+
+<img src="./logs/error_distribution.png">
