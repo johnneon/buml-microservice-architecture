@@ -3,10 +3,10 @@ import json
 import os
 
 # Путь к файлу для логирования метрик
-log_file = os.path.join('./logs', 'metric_log.csv')
+log_file = os.path.join('/logs', 'metric_log.csv')
 
 # Создаём папку logs, если её нет
-os.makedirs('./logs', exist_ok=True)
+os.makedirs('/logs', exist_ok=True)
 
 # Инициализируем CSV-файл, если он не существует
 if not os.path.exists(log_file):

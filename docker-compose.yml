@@ -15,6 +15,9 @@ services:
     restart: always
     depends_on:
       - rabbitmq
+    volumes:
+      - ./logs:/logs
+
 
   model:
     build:
@@ -23,6 +26,9 @@ services:
     depends_on:
       - rabbitmq
       - features
+    volumes:
+      - ./logs:/logs
+
 
   metric:
     build:
@@ -32,4 +38,16 @@ services:
       - rabbitmq
       - features
       - model
+    volumes:
+      - ./logs:/logs
 
+  plot:
+    build:
+      context: ./plot
+    depends_on:
+      - rabbitmq
+      - features
+      - model
+      - metric
+    volumes:
+      - ./logs:/logs
