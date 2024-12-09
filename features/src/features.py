@@ -2,6 +2,8 @@ import pika
 import numpy as np
 import json
 from sklearn.datasets import load_diabetes
+from datetime import datetime
+import time
 
 # Создаём бесконечный цикл для отправки сообщений в очередь
 while True:
@@ -11,28 +13,41 @@ while True:
         # Формируем случайный индекс строки
         random_row = np.random.randint(0, X.shape[0] - 1)
 
-        # Создаём подключение по адресу rabbitmq:
+        # Создаём уникальный идентификатор на основе timestamp
+        message_id = datetime.timestamp(datetime.now())
+
+        # Соединение с RabbitMQ
         connection = pika.BlockingConnection(pika.ConnectionParameters('rabbitmq'))
         channel = connection.channel()
 
-        # Создаём очередь y_true
+        # Создаём очереди, если они не существуют
         channel.queue_declare(queue='y_true')
-        # Создаём очередь features
         channel.queue_declare(queue='features')
 
-        # Публикуем сообщение в очередь y_true
+        # Формируем и отправляем сообщение в очередь y_true
+        message_y_true = {
+            'id': message_id,
+            'body': y[random_row]
+        }
         channel.basic_publish(exchange='',
                               routing_key='y_true',
-                              body=json.dumps(y[random_row]))
-        print('Сообщение с правильным ответом отправлено в очередь')
+                              body=json.dumps(message_y_true))
+        print(f"Сообщение с правильным ответом отправлено в очередь: {message_y_true}")
 
-        # Публикуем сообщение в очередь features
+        # Формируем и отправляем сообщение в очередь features
+        message_features = {
+            'id': message_id,
+            'body': list(X[random_row])
+        }
         channel.basic_publish(exchange='',
                               routing_key='features',
-                              body=json.dumps(list(X[random_row])))
-        print('Сообщение с вектором признаков отправлено в очередь')
+                              body=json.dumps(message_features))
+        print(f"Сообщение с вектором признаков отправлено в очередь: {message_features}")
 
         # Закрываем подключение
         connection.close()
-    except:
-        print('Не удалось подключиться к очереди')
+
+        # Задержка перед следующей итерацией
+        time.sleep(10)
+    except Exception as e:
+        print(f"Не удалось подключиться к очереди: {e}")
